@@ -40,11 +40,11 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser):
-    RESTAURANT = 1
+    VENDOR = 1
     CUSTOMER = 2
 
     ROLE_CHOICE = (
-        (RESTAURANT, 'Restaurant'),
+        (VENDOR, 'Vendor'),
         (CUSTOMER, 'Customer'),
     )
 
@@ -100,6 +100,5 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.email
-
 
 # post_save.connect(post_save_create_profile_receiver,sender=User)
