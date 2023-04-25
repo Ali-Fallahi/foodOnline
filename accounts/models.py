@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.db.models.fields.related import ForeignKey, OneToOneField
+from django.db.models.fields.related import OneToOneField
 
 
 # Create your models here.
