@@ -1,3 +1,4 @@
+from foodOnline_main import settings
 from vendor.models import Vendor
 
 
