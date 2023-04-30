@@ -21,19 +21,19 @@
                         </div>
                         <div class="text-holder">
                             <span class="restaurant-title">{{ vendor.vendor_name }}</span>
-                            <div class="text"
-                            {% if vendor.user_profile.address %}
-                                <i class="icon-location"></i>
-                                <p>{{ vendor.user_profile.address }}</p>
-                            {% endif %}
+                            <div class="text">
+                                {% if vendor.user_profile.address %}
+                                    <i class="icon-location"></i>
+                                    <p>{{ vendor.user_profile.address }}</p>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- Column End -->
         </div>
-        <!-- Column End -->
+        <!-- Row End -->
     </div>
-    <!-- Row End -->
-</div>
-<!-- Container End -->
+    <!-- Container End -->
 </div>
