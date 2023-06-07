@@ -1,3 +1,28 @@
+document.getElementById('home-search').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent form submission
+
+    var address = document.getElementById('id_address').value;
+
+    // Send a request to the API to get latitude and longitude
+    fetch('https://us1.locationiq.com/v1/search?q=' + address + '&key=pk.b488c4e5d0fcd29ac9ddf8894ef3fbfd' + '&format=json')
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            console.log(data)
+            // Populate the hidden inputs with latitude and longitude
+            document.getElementById('id_latitude').value = data[0]['lat'];
+            document.getElementById('id_longitude').value = data[0]['lon'];
+
+            // Submit the form
+            document.getElementById('home-search').submit();
+        })
+        .catch(function (error) {
+            console.log(error);
+            $('#notFoundBadge').removeClass('d-none');
+            // Handle error scenarios if needed
+        });
+});
 $(document).ready(function () {
     //add to cart
     $('.add_to_cart').on('click', function (e) {

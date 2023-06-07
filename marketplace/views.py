@@ -1,7 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch
-from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.measure import D
+from django.contrib.gis.db.models.functions import Distance
+from django.db.models import Prefetch, Q
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
 
 from .context_processors import get_cart_counter, get_cart_amounts
 from marketplace.models import Cart
@@ -123,3 +126,39 @@ def delete_cart(request, cart_id):
 
         else:
             return JsonResponse({'status': 'Failed', 'message': 'Invalid request!'})
+
+
+def search(request):
+    if not 'address' in request.GET:
+        return redirect('marketplace')
+    else:
+        address = request.GET['address']
+        latitude = request.GET['lat']
+        longitude = request.GET['lng']
+        radius = request.GET['radius']
+        keyword = request.GET['keyword']
+
+        # get vendor ids that has the food item the user is looking for
+        fetch_vendors_by_food_items = FoodItem.objects.filter(food_title__icontains=keyword,
+                                                              is_available=True).values_list(
+            'vendor', flat=True)
+        vendors = Vendor.objects.filter(
+            Q(id__in=fetch_vendors_by_food_items) | Q(vendor_name__icontains=keyword, is_approved=True,
+                                                      user__is_active=True))
+        if latitude and longitude and radius:
+            pnt = GEOSGeometry('Point(%s %s)' % (longitude, latitude))
+            vendors = Vendor.objects.filter(
+                Q(id__in=fetch_vendors_by_food_items) |
+                Q(vendor_name__icontains=keyword, is_approved=True,
+                  user__is_active=True), user_profile__location__distance_lte=(pnt, D(km=radius))
+            ).annotate(distance=Distance("user_profile__location", pnt)).order_by("distance")
+
+            for v in vendors:
+                v.kms = round(v.distance.km, 1)
+    vendor_count = vendors.count()
+    context = {
+        "vendors": vendors,
+        "vendor_count": vendor_count,
+        "source_location": address,
+    }
+    return render(request, 'marketplace/listings.html', context)

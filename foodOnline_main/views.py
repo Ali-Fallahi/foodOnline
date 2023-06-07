@@ -1,3 +1,5 @@
+import requests
+from decouple import config
 from django.shortcuts import render
 from vendor.models import Vendor
 

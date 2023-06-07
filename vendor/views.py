@@ -11,11 +11,8 @@ from menu.forms import CategoryForm, FoodItemForm
 from menu.models import Category, FoodItem
 from vendor.forms import VendorForm
 from vendor.models import Vendor
-from decouple import config
-
-headers = {
-    "Api-Key": config('NESHAN_API_KEY'),
-}
+from django.core.serializers import serialize
+from django.http import JsonResponse
 
 
 def get_vendor(request):
@@ -35,23 +32,34 @@ def vprofile(request):
         vendor_form = VendorForm(request.POST, request.FILES, instance=vendor)
         address = request.POST.get('address')
         try:
-            neshan = requests.get(
-                f"https://api.neshan.org/v4/geocoding?address={address}",
-                headers=headers)
-            x = neshan.json()['location']['x']
-            y = neshan.json()['location']['y']
-        except:
-            x = 0
-            y = 0
-        print(x, y)
+            url = "https://us1.locationiq.com/v1/search"
+
+            data = {
+                'key': 'pk.b488c4e5d0fcd29ac9ddf8894ef3fbfd',
+                'q': address,
+                'format': 'json'
+            }
+
+            response = requests.get(url, params=data)
+            data = response.json()
+            result = data[0]
+            latitude = result["lat"]
+            longitude = result["lon"]
+            print("Latitude:", latitude)
+            print("Longitude:", longitude)
+        except Exception as e:
+            print(e)
+            latitude = 0
+            longitude = 0
+        print(latitude, longitude)
         if profile_form.is_valid() and vendor_form.is_valid():
             profile.address = profile_form.cleaned_data['address']
             profile.city = profile_form.cleaned_data['city']
             profile.state = profile_form.cleaned_data['state']
             profile.country = profile_form.cleaned_data['country']
             profile.pin_code = profile_form.cleaned_data['pin_code']
-            profile.latitude = x
-            profile.longitude = y
+            profile.latitude = latitude
+            profile.longitude = longitude
             profile.save()
             vendor_form.save()
             messages.success(request, 'Settings updated.')
@@ -104,7 +112,8 @@ def add_category(request):
             category_name = form.cleaned_data['category_name']
             category = form.save(commit=False)
             category.vendor = get_vendor(request)
-            category.slug = slugify(category_name)
+            category.save()  # id is generated
+            category.slug = slugify(category_name) + '-' + str(category.id)
             category.save()
             messages.success(request, 'Category added successfully')
             return redirect('menu_builder')
