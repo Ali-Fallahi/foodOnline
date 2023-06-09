@@ -20,10 +20,11 @@
                             <ul>
                                 <li class="location-has-children choose-location">
                                     <form action="#">
-                                        <input type="text" value="" name="location"
-                                               placeholder="Enter your delivery location" autocomplete="off">
+                                        <input type="text" value="" name="location" id="location"
+                                               placeholder="Your current location" autocomplete="off">
                                         <span id="foodbakery_radius_location_open"
-                                              class="foodbakery-radius-location"><i class="icon-target5"></i></span>
+                                              class="foodbakery-radius-location" onclick="getLocation()"><i
+                                                class="icon-target5"></i></span>
                                     </form>
 
                                 </li>
@@ -61,3 +62,40 @@
         </div>
     </header>
     <!-- Header End -->
+
+    <script>
+        var x = document.getElementById("location");
+        var current_location = sessionStorage.getItem("current_location");
+        if (current_location != "") {
+            x.value = current_location;
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                x.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        function showPosition(position) {
+            var lat = position.coords.latitude
+            var lng = position.coords.longitude
+
+            // hit AJAX request to locationiq and get the location data using lat and lng
+
+            var settings = {
+                "async": true,
+                "crossDomain": true,
+                "url": `https://us1.locationiq.com/v1/reverse?key=pk.b488c4e5d0fcd29ac9ddf8894ef3fbfd&lat=${lat}&lon=${lng}&format=json`,
+                "method": "GET"
+            }
+
+            $.ajax(settings).done(function (response) {
+                var current_location = response.display_name
+                x.value = current_location
+                sessionStorage.setItem("current_location", current_location)
+                window.location = '?lat=' + lat + '&lng=' + lng
+            });
+        }
+    </script>

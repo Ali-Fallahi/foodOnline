@@ -104,12 +104,12 @@
                                     <li class="has-border">
                                         <figure>
                                             {% if vendor.user_profile.profile_picture %}
-                                                <a href="#">
+                                                <a href="{% url 'vendor_detail' vendor.vendor_slug %}">
                                                     <img src="{{ vendor.user_profile.profile_picture.url }}"
                                                          class="attachment-full size-full wp-post-image" alt="">
                                                 </a>
                                             {% else %}
-                                                <a href="#">
+                                                <a href="{% url 'vendor_detail' vendor.vendor_slug %}">
                                                     <img src="{% static 'images/default-profile.PNG' %}"
                                                          class="attachment-full size-full wp-post-image" alt="">
                                                 </a>
@@ -143,7 +143,7 @@
                                         <div class="list-post featured">
                                             <div class="img-holder">
                                                 <figure>
-                                                    <a href="#">
+                                                    <a href="{% url 'vendor_detail' vendor.vendor_slug %}">
                                                         {% if vendor.user_profile.profile_picture %}
                                                             <img src="{{ vendor.user_profile.profile_picture.url }}"
                                                                  class="img-thumb wp-post-image" alt="">
@@ -160,11 +160,16 @@
                                             <div class="text-holder">
                                                 <div class="post-title">
                                                     <h5>
-                                                        <a href="listing-detail.html">{{ vendor }}</a>
+                                                        <a href="{% url 'vendor_detail' vendor.vendor_slug %}">{{ vendor }}</a>
                                                     </h5>
                                                 </div>
                                                 {% if vendor.user_profile.city and vendor.user_profile.state and vendor.user_profile.pin_code %}
                                                     <span>{{ vendor.user_profile.city }}, {{ vendor.user_profile.state }}, {{ vendor.user_profile.pin_code }}</span>
+                                                {% endif %}
+
+                                                {% if vendor.kms %}
+                                                    <br>
+                                                    <span><small><b>{{ vendor.kms }} km</b> away</small></span>
                                                 {% endif %}
                                             </div>
                                         </div>
