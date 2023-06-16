@@ -1,29 +1,33 @@
-document.getElementById('home-search').addEventListener('submit', function (event) {
-    event.preventDefault(); // Prevent form submission
-
-    var address = document.getElementById('id_address').value;
-
-    // Send a request to the API to get latitude and longitude
-    fetch('https://us1.locationiq.com/v1/search?q=' + address + '&key=pk.b488c4e5d0fcd29ac9ddf8894ef3fbfd' + '&format=json')
-        .then(function (response) {
-            return response.json();
-        })
-        .then(function (data) {
-            console.log(data)
-            // Populate the hidden inputs with latitude and longitude
-            document.getElementById('id_latitude').value = data[0]['lat'];
-            document.getElementById('id_longitude').value = data[0]['lon'];
-
-            // Submit the form
-            document.getElementById('home-search').submit();
-        })
-        .catch(function (error) {
-            console.log(error);
-            $('#notFoundBadge').removeClass('d-none');
-            // Handle error scenarios if needed
-        });
-});
 $(document).ready(function () {
+
+    //get latitude and longitude using API in home page
+    if (document.getElementById('home-search')) {
+        document.getElementById('home-search').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent form submission
+
+            var address = document.getElementById('id_address').value;
+
+            // Send a request to the API to get latitude and longitude
+            fetch('https://us1.locationiq.com/v1/search?q=' + address + '&key=pk.b488c4e5d0fcd29ac9ddf8894ef3fbfd' + '&format=json')
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    console.log(data)
+                    // Populate the hidden inputs with latitude and longitude
+                    document.getElementById('id_latitude').value = data[0]['lat'];
+                    document.getElementById('id_longitude').value = data[0]['lon'];
+
+                    // Submit the form
+                    document.getElementById('home-search').submit();
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    $('#notFoundBadge').removeClass('d-none');
+                    // Handle error scenarios if needed
+                });
+        });
+    }
     //add to cart
     $('.add_to_cart').on('click', function (e) {
         e.preventDefault();
@@ -159,4 +163,72 @@ $(document).ready(function () {
             $('#grand_total').html(grand_total);
         }
     }
+
+    // ADD OPENING HOUR
+    $('.add_hour').on('click', function (e) {
+        let condition;
+        e.preventDefault();
+        const day = document.getElementById('id_day').value;
+        const from_hour = document.getElementById('id_from_hour').value;
+        const to_hour = document.getElementById('id_to_hour').value;
+        let is_closed = document.getElementById('id_is_closed').checked;
+        const csrf_token = $('input[name="csrfmiddlewaretoken"]').val();
+        const url = document.getElementById('add_hour_url').value;
+
+        console.log(day, from_hour, to_hour, is_closed, csrf_token, url)
+
+        if (is_closed) {
+            is_closed = 'True'
+            condition = "day != ''"
+        } else {
+            is_closed = 'False'
+            condition = "day != '' && from_hour != '' && to_hour != ''"
+        }
+
+        if (eval(condition)) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {
+                    'day': day,
+                    'from_hour': from_hour,
+                    'to_hour': to_hour,
+                    'is_closed': is_closed,
+                    'csrfmiddlewaretoken': csrf_token
+                },
+                success: function (response) {
+                    if (response.status == 'success') {
+                        if (response.is_closed == 'Closed') {
+                            html = `<tr id="hour-${response.id}"><td><b>${response.day}</b></td><td><b>Closed</b></td><td><a href="#" class="remove_hour" data-url="/vendor/opening-hours/remove/${response.id}/">Remove</a></td></tr>`
+                        } else {
+                            html = `<tr id="hour-${response.id}"><td><b>${response.day}</b></td><td><b>${response.from_hour} - ${response.to_hour}</b></td><td><a href="#" class="remove_hour" data-url="/vendor/opening-hours/remove/${response.id}/">Remove</a></td></tr>`
+                        }
+                        $('.opening_hours').append(html)
+                        document.getElementById('opening_hours').reset();
+                    } else {
+                        swal(response.message, '', "error")
+                    }
+                }
+            });
+        } else {
+            swal('Please fill all fields', '', 'info');
+        }
+    })
+    // REMOVE OPENING HOUR
+    $(document).on('click', '.remove_hour', function (e) {
+        e.preventDefault();
+        url = $(this).attr('data-url')
+
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function (response) {
+                if (response.status == 'success') {
+                    document.getElementById('hour-' + response.id).remove()
+                }
+            }
+        })
+    })
+
+    // document ready close
 });

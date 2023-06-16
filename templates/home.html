@@ -153,9 +153,15 @@
                                                         {% endif %}
                                                     </a>
                                                 </figure>
-                                                <span class="restaurant-status close">
+                                                {% if vendor.is_open %}
+                                                    <span class="restaurant-status open">
+                                                    <em class="bookmarkRibbon"></em>Open
+                                                    </span>
+                                                {% else %}
+                                                    <span class="restaurant-status close">
                                                     <em class="bookmarkRibbon"></em>Close
-                                                </span>
+                                                    </span>
+                                                {% endif %}
                                             </div>
                                             <div class="text-holder">
                                                 <div class="post-title">
