@@ -19,8 +19,10 @@ class Vendor(models.Model):
         return self.vendor_name
 
     def is_open(self):
+        # Check current day's opening hours.
         today_date = date.today()
         today = today_date.isoweekday()
+        print(today)
 
         current_opening_hours = OpeningHour.objects.filter(vendor=self, day=today)
         now = datetime.now()
@@ -28,13 +30,17 @@ class Vendor(models.Model):
 
         is_open = None
         for i in current_opening_hours:
-            start = str(datetime.strptime(i.from_hour, "%I:%M %p").time())
-            end = str(datetime.strptime(i.to_hour, "%I:%M %p").time())
-            if start < current_time < end:
-                is_open = True
-                break
-            else:
-                is_open = False
+            if not i.is_closed:
+                start = str(datetime.strptime(i.from_hour, "%I:%M %p").time())
+                end = str(datetime.strptime(i.to_hour, "%I:%M %p").time())
+                print(start)
+                print(current_time)
+                print(end)
+                if start < current_time < end:
+                    is_open = True
+                    break
+                else:
+                    is_open = False
         return is_open
 
     def save(self, *args, **kwargs):
@@ -59,13 +65,13 @@ class Vendor(models.Model):
 
 
 DAYS = [
-    (1, ("Monday")),
-    (2, ("Tuesday")),
-    (3, ("Wednesday")),
-    (4, ("Thursday")),
-    (5, ("Friday")),
-    (6, ("Saturday")),
-    (7, ("Sunday")),
+    (1, "Monday"),
+    (2, "Tuesday"),
+    (3, "Wednesday"),
+    (4, "Thursday"),
+    (5, "Friday"),
+    (6, "Saturday"),
+    (7, "Sunday"),
 ]
 
 HOUR_OF_DAY_24 = [(time(h, m).strftime('%I:%M %p'), time(h, m).strftime('%I:%M %p')) for h in range(0, 24) for m in
