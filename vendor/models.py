@@ -22,7 +22,6 @@ class Vendor(models.Model):
         # Check current day's opening hours.
         today_date = date.today()
         today = today_date.isoweekday()
-        print(today)
 
         current_opening_hours = OpeningHour.objects.filter(vendor=self, day=today)
         now = datetime.now()
@@ -33,9 +32,6 @@ class Vendor(models.Model):
             if not i.is_closed:
                 start = str(datetime.strptime(i.from_hour, "%I:%M %p").time())
                 end = str(datetime.strptime(i.to_hour, "%I:%M %p").time())
-                print(start)
-                print(current_time)
-                print(end)
                 if start < current_time < end:
                     is_open = True
                     break
