@@ -6,19 +6,76 @@
         <div class="page-section">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                         <div class="tabs-holder horizontal">
                             <ul class="stickynav-tabs nav nav-tabs">
                                 <li class="active"><a data-toggle="tab" href="#home"><i
                                         class="fa fa-shopping-cart text-danger">
-                                </i>Cart Items</a></li>
+                                </i>Billing Address</a></li>
                             </ul>
                             <div class="tab-content">
                                 <div id="home" class="tab-pane in active">
                                     <div class="menu-itam-holder">
-                                        <div class="text-center p-5" id="empty-cart" style="display: none;">
-                                            <h3>Cart is empty</h3>
+                                        <div id="menu-item-list-6272" class="menu-itam-list">
+                                            <form action="#" method="POST">
+                                                {% csrf_token %}
+                                                <div class="row">
+                                                    <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                                                        First Name: {{ form.first_name }}
+                                                    </div>
+                                                    <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                                                        Last Name: {{ form.last_name }}
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                                                        Phone Number: {{ form.phone }}
+                                                    </div>
+                                                    <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                                                        Email Address: {{ form.email }}
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group col-md-12 col-sm-12 col-lg-12">
+                                                        Address: {{ form.address }}
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                                                        Country: {{ form.country }}
+                                                    </div>
+                                                    <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                                                        State: {{ form.state }}
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                                                        City: {{ form.city }}
+                                                    </div>
+                                                    <div class="form-group col-md-6 col-sm-12 col-lg-6">
+                                                        Pin Code: {{ form.pin_code }}
+                                                    </div>
+                                                </div>
+
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Your Order Section -->
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="tabs-holder horizontal">
+                            <ul class="stickynav-tabs nav nav-tabs">
+                                <li class="active"><a data-toggle="tab" href="#home"><i
+                                        class="icon- icon-room_service"></i>Your Order</a></li>
+
+                            </ul>
+                            <div class="tab-content">
+                                <div id="home" class="tab-pane in active">
+                                    <div class="menu-itam-holder">
+
                                         <div id="menu-item-list-6272" class="menu-itam-list">
                                             <ul>
                                                 {% if cart_items %}
@@ -33,24 +90,12 @@
                                                                 <a href="{% url 'vendor_detail' item.fooditem.vendor.vendor_slug %}"
                                                                    class="badge badge-warning">{{ item.fooditem.vendor }}</a>
                                                             </div>
+                                                            <div class="quantity"
+                                                                 style="display: inline-block; position: absolute; top: 50%; transform: translateY(-50%); margin-top: -10px;">
+                                                                <span>{{ item.quantity }} QTY</span>
+                                                            </div>
                                                             <div class="price-holder">
                                                                 <span class="price">${{ item.fooditem.price }}</span>
-                                                                <a href="#" class="decrease_cart"
-                                                                   data-id="{{ item.fooditem.id }}"
-                                                                   data-url="{% url 'decrease_cart' item.fooditem.id %}"
-                                                                   id="{{ item.id }}"
-                                                                   style="margin-right: 20px;">
-                                                                    <i class="icon-minus text-color"></i></a>
-                                                                <label id="qty-{{ item.fooditem.id }}">0</label>
-                                                                <a href="#" class="add_to_cart"
-                                                                   data-id="{{ item.fooditem.id }}"
-                                                                   data-url="{% url 'add_to_cart' item.fooditem.id %}">
-                                                                    <i class="icon-plus4 text-color"></i></a>
-                                                                <a href="#" class="delete_cart"
-                                                                   data-id="{{ item.id }}"
-                                                                   data-url="{% url 'delete_cart' item.id %}">
-                                                                    <i class="icon-delete text-color"></i></a>
-
                                                             </div>
                                                         </li>
                                                     {% endfor %}
@@ -62,28 +107,6 @@
                                             </ul>
 
                                         </div>
-                                        {% for item in cart_items %}
-                                            <span id="qty-{{ item.fooditem.id }}"
-                                                  class="item_qty d-none"
-                                                  data-qty="{{ item.quantity }}">{{ item.quantity }}
-                                            </span>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Your Order Section -->
-                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                        <div class="tabs-holder horizontal">
-                            <ul class="stickynav-tabs nav nav-tabs">
-                                <li class="active"><a data-toggle="tab" href="#home"><i
-                                        class="icon- icon-room_service"></i>Your Order</a></li>
-
-                            </ul>
-                            <div class="tab-content">
-                                <div id="home" class="tab-pane in active">
-                                    <div class="menu-itam-holder">
                                         <div>
                                             <ul>
                                                 <li style="list-style-type: none">
@@ -111,10 +134,13 @@
                                                         <span id="grand_total">{{ grand_total }}</span>
                                                     </span>
                                                 </li>
-                                                <a href="{% url 'checkout' %}" class="btn btn-danger w-100 p-2 mt-3">PROCEED
-                                                    TO
-                                                    CHECKOUT</a>
+                                                <button type="submit" class="btn btn-danger w-100 p-2 mt-3">
+                                                    PLACE ORDER
+                                                </button>
                                             </ul>
+
+                                            </form>
+                                            <!-- end the form -->
                                         </div>
                                     </div>
                                 </div>
