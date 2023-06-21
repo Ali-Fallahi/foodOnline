@@ -18,11 +18,23 @@
                             <div class="tab-content">
                                 <div id="home" class="tab-pane in active">
                                     <div class="menu-itam-holder">
-
                                         <div id="menu-item-list-6272" class="menu-itam-list">
-
+                                            <div class="billing-address">
+                                                <div><b>{{ order.name }}</b></div>
+                                                <div><b>{{ order.address }}</b></div>
+                                                <div><b>{{ order.city }} - {{ order.pin_code }}</b></div>
+                                                <div><b>{{ order.country }}</b></div>
+                                                <div><b>Phone: </b>{{ order.phone }}</div>
+                                                <div><b>Email: </b>{{ order.email }}</div>
+                                                <div><b>Payment: </b>{{ order.payment_method }}</div>
+                                                <br>
+                                                <div><a href="{% url 'checkout' %}"
+                                                        class="btn btn-outline-danger">Edit</a>
+                                                </div>
+                                                <br>
+                                            </div>
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -40,6 +52,22 @@
                                 <div id="home" class="tab-pane in active">
                                     <div class="menu-itam-holder">
                                         <div>
+
+                                            <table class="table">
+                                                <tbody>
+                                                {% for item in cart_items %}
+                                                    <tr>
+                                                        <td><img src="{{ item.fooditem.image.url }}" width="40"
+                                                                 alt="Food Image"></td>
+                                                        <td><b>{{ item.fooditem }}</b></td>
+                                                        <td><b>{{ item.quantity }}</b></td>
+                                                        <td><b>${{ item.fooditem.price }}</b></td>
+
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+
                                             <ul>
                                                 <li style="list-style-type: none">
                                                     Subtotal
@@ -66,9 +94,8 @@
                                                         <span id="grand_total">{{ grand_total }}</span>
                                                     </span>
                                                 </li>
-                                                <a href="{% url 'checkout' %}" class="btn btn-danger w-100 p-2 mt-3">PROCEED
-                                                    TO
-                                                    CHECKOUT</a>
+                                                {# PayPal Checkout Button #}
+                                                <div id="paypal-button-container"></div>
                                             </ul>
                                         </div>
                                     </div>
@@ -80,4 +107,77 @@
             </div>
         </div>
     </div>
+    <!-- MAIN SECTION END BLOCK -->
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        var grand_total = "{{ grand_total }}"
+        var url = "{% url 'payments' %}"
+        var order_number = "{{ order.order_number }}"
+        const csrftoken = getCookie('csrftoken');
+        console.log('csrftoken ==> ' + csrftoken)
+
+        // Render the PayPal button into #paypal-button-container
+        paypal.Buttons({
+
+            // Set up the transaction
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: grand_total
+                        }
+                    }]
+                });
+            },
+
+            // Finalize the transaction
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (orderData) {
+                    // Successful capture! For demo purposes:
+                    console.log(orderData)
+                    var transaction = orderData.purchase_units[0].payments.captures[0];
+
+                    var transaction_id = transaction.id
+                    var status = orderData.status
+                    var payment_method = 'PayPal'
+                    sendTransaction(transaction_id, payment_method, status)
+
+                });
+            }
+
+        }).render('#paypal-button-container');
+
+        //send data to payments view to store in the database
+        function sendTransaction(transaction_id, payment_method, status) {
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: {
+                    'order_number': order_number,
+                    'transaction_id': transaction_id,
+                    'payment_method': payment_method,
+                    'status': status,
+                    'csrfmiddlewaretoken': csrftoken
+                },
+                success: function (response) {
+                    console.log(response);
+                }
+            })
+        }
+    </script>
 {% endblock %}
