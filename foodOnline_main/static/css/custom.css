@@ -80,3 +80,25 @@ table > tbody > tr > td {
     outline: 2px solid #ff0000;
     border-radius: 5px;
 }
+
+/* top restaurants */
+.company-logo .vendor-logo img {
+    box-shadow: 0 2px 4px rgba(13, 20, 28, 0.46);
+}
+
+.company-logo .vendor-logo p {
+    opacity: 0;
+}
+
+.company-logo .vendor-logo:hover p {
+    opacity: 1;
+    color: white !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(139, 142, 157, 0.63);
+    width: 100%;
+    height: 100%;
+    transition: all 0.2s ease-in-out;
+    font-size: 12px
+}

@@ -104,9 +104,11 @@
                                     <li class="has-border">
                                         <figure>
                                             {% if vendor.user_profile.profile_picture %}
-                                                <a href="{% url 'vendor_detail' vendor.vendor_slug %}">
+                                                <a class="vendor-logo"
+                                                   href="{% url 'vendor_detail' vendor.vendor_slug %}">
                                                     <img src="{{ vendor.user_profile.profile_picture.url }}"
                                                          class="attachment-full size-full wp-post-image" alt="">
+                                                    <p style="position: absolute;">{{ vendor.vendor_name }}</p>
                                                 </a>
                                             {% else %}
                                                 <a href="{% url 'vendor_detail' vendor.vendor_slug %}">
